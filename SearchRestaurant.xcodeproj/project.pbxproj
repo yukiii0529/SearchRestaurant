@@ -15,7 +15,7 @@
 		618D9D6D262409FE00498D0B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 618D9D6B262409FE00498D0B /* LaunchScreen.storyboard */; };
 		618D9D78262409FE00498D0B /* SearchRestaurantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618D9D77262409FE00498D0B /* SearchRestaurantTests.swift */; };
 		618D9D83262409FF00498D0B /* SearchRestaurantUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618D9D82262409FF00498D0B /* SearchRestaurantUITests.swift */; };
-		618D9DAC2625375D00498D0B /* Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 618D9DAB2625375D00498D0B /* Keys.plist */; };
+		618D9DB1262539C000498D0B /* Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 618D9DB0262539C000498D0B /* Keys.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -50,7 +50,7 @@
 		618D9D7E262409FF00498D0B /* SearchRestaurantUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SearchRestaurantUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		618D9D82262409FF00498D0B /* SearchRestaurantUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchRestaurantUITests.swift; sourceTree = "<group>"; };
 		618D9D84262409FF00498D0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		618D9DAB2625375D00498D0B /* Keys.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Keys.plist; sourceTree = "<group>"; };
+		618D9DB0262539C000498D0B /* Keys.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Keys.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,7 +108,7 @@
 				618D9D69262409FE00498D0B /* Assets.xcassets */,
 				618D9D6B262409FE00498D0B /* LaunchScreen.storyboard */,
 				618D9D6E262409FE00498D0B /* Info.plist */,
-				618D9DAB2625375D00498D0B /* Keys.plist */,
+				618D9DB0262539C000498D0B /* Keys.plist */,
 			);
 			path = SearchRestaurant;
 			sourceTree = "<group>";
@@ -234,8 +234,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				618D9DB1262539C000498D0B /* Keys.plist in Resources */,
 				618D9D6D262409FE00498D0B /* LaunchScreen.storyboard in Resources */,
-				618D9DAC2625375D00498D0B /* Keys.plist in Resources */,
 				618D9D6A262409FE00498D0B /* Assets.xcassets in Resources */,
 				618D9D68262409FB00498D0B /* Main.storyboard in Resources */,
 			);
