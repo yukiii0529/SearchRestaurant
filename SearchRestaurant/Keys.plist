@@ -1,12 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<!--
-   api.plist
-   SearchRestaurant
-
-   Created by 田中勇輝 on 2021/04/13.
-   Copyright (c) 2021 ___ORGANIZATIONNAME___. All rights reserved.
--->
 <plist version="1.0">
-<dict/>
+<dict>
+	<key>accessApi</key>
+	<string>0c86b34f889617a2</string>
+</dict>
 </plist>
