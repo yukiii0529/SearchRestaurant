@@ -65,6 +65,7 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
         let cell = tableView.cellForRow(at: indexPath)
         cell?.accessoryType = .checkmark // チェックマークを入れる
         self.selectGenre.append(genre[indexPath.row]) // 選択したジャンルを格納する配列（selectGrnre）に入れる
+        print(selectGenre)
     }
 
     // ジャンルを選択解除した時
@@ -74,6 +75,7 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
         for i in 0..<self.selectGenre.count { // 選択したジャンルを格納する配列（selectGrnre）から外す
             if self.selectGenre[i] == genre[indexPath.row] {
                 self.selectGenre.remove(at: i)
+                break
             }
         }
     }

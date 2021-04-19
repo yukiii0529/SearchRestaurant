@@ -17,6 +17,8 @@
 		618D9D83262409FF00498D0B /* SearchRestaurantUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 618D9D82262409FF00498D0B /* SearchRestaurantUITests.swift */; };
 		618D9DB1262539C000498D0B /* Keys.plist in Resources */ = {isa = PBXBuildFile; fileRef = 618D9DB0262539C000498D0B /* Keys.plist */; };
 		61FF8F96262AB307007AEB5A /* ChooseGenreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FF8F95262AB307007AEB5A /* ChooseGenreViewController.swift */; };
+		61FF8F9E262D6BCC007AEB5A /* RestaurantListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FF8F9D262D6BCC007AEB5A /* RestaurantListViewController.swift */; };
+		61FF8FA3262D7AE5007AEB5A /* RestaurantListTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61FF8FA2262D7AE5007AEB5A /* RestaurantListTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		618D9D84262409FF00498D0B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		618D9DB0262539C000498D0B /* Keys.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Keys.plist; sourceTree = "<group>"; };
 		61FF8F95262AB307007AEB5A /* ChooseGenreViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseGenreViewController.swift; sourceTree = "<group>"; };
+		61FF8F9D262D6BCC007AEB5A /* RestaurantListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantListViewController.swift; sourceTree = "<group>"; };
+		61FF8FA2262D7AE5007AEB5A /* RestaurantListTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestaurantListTableViewCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +116,8 @@
 				618D9D6E262409FE00498D0B /* Info.plist */,
 				618D9DB0262539C000498D0B /* Keys.plist */,
 				61FF8F95262AB307007AEB5A /* ChooseGenreViewController.swift */,
+				61FF8F9D262D6BCC007AEB5A /* RestaurantListViewController.swift */,
+				61FF8FA2262D7AE5007AEB5A /* RestaurantListTableViewCell.swift */,
 			);
 			path = SearchRestaurant;
 			sourceTree = "<group>";
@@ -267,6 +273,8 @@
 			files = (
 				618D9D65262409FB00498D0B /* ViewController.swift in Sources */,
 				618D9D61262409FB00498D0B /* AppDelegate.swift in Sources */,
+				61FF8FA3262D7AE5007AEB5A /* RestaurantListTableViewCell.swift in Sources */,
+				61FF8F9E262D6BCC007AEB5A /* RestaurantListViewController.swift in Sources */,
 				618D9D63262409FB00498D0B /* SceneDelegate.swift in Sources */,
 				61FF8F96262AB307007AEB5A /* ChooseGenreViewController.swift in Sources */,
 			);

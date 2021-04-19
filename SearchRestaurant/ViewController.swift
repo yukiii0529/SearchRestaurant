@@ -45,6 +45,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         "その他グルメ": "G015"
     ]
     var selectGenre: Array<String> = [] // 選択したジャンルを格納する配列
+    @IBOutlet weak var displayGenre: UILabel! // ジャンル表示
+    var genreList = "" // ジャンルに関するクエリ作成用変数
     
     @IBOutlet weak var restaurantNameField: UITextField! // レストラン名検索フィールド
     
@@ -70,6 +72,25 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         // インプットビュー設定
         selectDistance.inputView = pickerView
         selectDistance.inputAccessoryView = toolbar
+        
+        // ジャンル関連
+        if selectGenre.count != 0 {
+            if selectGenre.count == 1 { // ジャンル選択が１つだけ
+                genreList = genre[selectGenre[0]]! // クエリ作成変数に入れる（genreList）
+            } else {
+                for i in 0..<selectGenre.count {
+                    if i == 0 {
+                        displayGenre.text! += selectGenre[i] // // 選択したジャンル名を画面表示する為の変数に入れる（displayGenre）
+                        genreList += genre[selectGenre[i]]! // クエリ作成変数に入れる（genreList）
+                    } else {
+                        displayGenre.text! += "," + selectGenre[i] // 選択したジャンル名を画面表示する為の変数に入れ、","で区切る（displayGenre）
+                        genreList += "," + genre[selectGenre[i]]! // クエリ作成変数に入れ、ジャンル間を","で区切る
+                    }
+                }
+            }
+        }
+        
+        self.navigationItem.hidesBackButton = true
     }
 
     /**
@@ -137,7 +158,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         getRApi()
     }
     var resutaurantList :[(id:String , name:String , access:String , genre:[String: String] , photo:[String: String])] = [] // レストラン全体情報を入れる配列
-    var photo: [String: String] = [:] // レストランの写真を入れる入れる
+    var photo: [String: String] = [:] // レストランの写真を入れる配列
     private func getRApi(){
         // Keys.plistより個別api情報取得
         let filePath = Bundle.main.path(forResource: "Keys", ofType:"plist" )
@@ -150,19 +171,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         var url = URL(string: "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=\(api)&lat=\(latitude)&lng=\(longitude)&range=\(radius ?? "5")&type=lite&format=json")
         
         // ジャンル関連
-        var genreList = "" // ジャンルに関するクエリ作成用変数
         if selectGenre.count != 0 {
-            if selectGenre.count == 1 { // ジャンル選択が１つだけ
-                genreList = genre[selectGenre[0]]! // クエリ作成変数に入れる（genreList）
-            } else {
-                for i in 0..<selectGenre.count {
-                    if i == 0 {
-                        genreList += genre[selectGenre[i]]! // クエリ作成変数に入れる（genreList）
-                    } else {
-                        genreList += "," + genre[selectGenre[i]]! // ジャンル間を","で区切る
-                    }
-                }
-            }
             // URLにジャンルクエリ追加
             var components = URLComponents(url: url!, resolvingAgainstBaseURL: true)
             components?.queryItems! += [URLQueryItem(name: "genre", value: genreList)]
@@ -176,9 +185,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
             components?.queryItems! += [URLQueryItem(name: "keyword", value: restaurantNameField.text)]
             url = components?.url
         }
-        
-        print(url)
-        
 
         let urlRequest = URLRequest(url: url! as URL)
         // JSONを取得
@@ -215,9 +221,10 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                             self.photo = photos["pc"] as! [String : String]
                             let resutaurant = (id,name,access,genre,self.photo) // 店舗情報まとめる
                             self.resutaurantList.append(resutaurant) // 店舗情報を配列に入れる
-                            print(resutaurant)
                         }
                     }
+                    
+                    self.listScreenTransition()
                 }
             }catch{
                 print("エラーが発生しました")
@@ -225,6 +232,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         })
         task.resume() //実行
    }
+    
+
+    // レストラン一覧画面遷移
+    func listScreenTransition(){
+        let restaurantListViewController = self.storyboard?.instantiateViewController(withIdentifier: "RestaurantListViewController") as! RestaurantListViewController
+        restaurantListViewController.resutaurantList = self.resutaurantList
+        self.navigationController?.pushViewController(restaurantListViewController, animated: true)
+    }
 
 }
 
