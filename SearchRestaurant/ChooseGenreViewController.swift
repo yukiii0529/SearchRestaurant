@@ -43,6 +43,7 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
         tableView.dataSource = self
         tableView.allowsMultipleSelection = true
         
+        // ２回目以降のジャンル再選択の際に既に選択済みのジャンルにチェックマークをつける
         for d in 0..<self.genre.count {
             for didGenre in self.selectGenre {
                 if didGenre == genre[d] {
@@ -90,8 +91,11 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
     
     // ジャンル選択完了ボタンがタップされた時
     @IBAction func chooseButtonTapped(_ sender: Any) {
-        let viewController = self.storyboard?.instantiateViewController(withIdentifier: "ViewController") as! ViewController
+        let nav = self.navigationController
+        // 一つ前のViewControllerを取得する
+        let viewController = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! ViewController
+        // 一つ前の画面に選択したジャンル情報を渡す
         viewController.selectGenre = self.selectGenre
-        self.navigationController?.pushViewController(viewController, animated: true)
+        self.navigationController?.popViewController(animated: true)
     }
 }
