@@ -65,13 +65,13 @@
                                             <fragment content="検索範囲">
                                                 <attributes>
                                                     <color key="NSColor" red="1" green="0.71927121326701848" blue="0.27618501241095172" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                    <font key="NSFont" size="17" name=".HiraKakuInterface-W3"/>
+                                                    <font key="NSFont" metaFont="system" size="17"/>
                                                 </attributes>
                                             </fragment>
                                             <fragment content="【必須】">
                                                 <attributes>
                                                     <color key="NSColor" red="1" green="0.10875733372748964" blue="0.1853295751004651" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                                    <font key="NSFont" size="17" name=".HiraKakuInterface-W3"/>
+                                                    <font key="NSFont" metaFont="system" size="17"/>
                                                 </attributes>
                                             </fragment>
                                         </attributedString>
