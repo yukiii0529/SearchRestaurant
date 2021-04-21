@@ -150,7 +150,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         searchButton.backgroundColor = UIColor(red: 255/255, green: 190/255, blue: 61/255, alpha: 0.66)
     }
     
-    // MARK: - ジャンル選択
+    // MARK: - ジャンル選択関連
     // ジャンル情報取得
     func getGenreContents() {
         searchDetailFlg = 0
@@ -160,6 +160,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
 
     // 選択画面に遷移
     @IBAction func chooseGenreButtonTapped(_ sender: Any) {
+        // 戻るボタンのタイトルを"完了"に変更します。
+        let backButton = UIBarButtonItem()
+        backButton.title = "戻る"
+        navigationItem.backBarButtonItem = backButton
+        
         let chooseGenreViewController = self.storyboard?.instantiateViewController(withIdentifier: "ChooseGenreViewController") as! ChooseGenreViewController
         chooseGenreViewController.selectGenre = self.selectGenre // ジャンル情報を遷移画面へ渡す
         chooseGenreViewController.genre = self.genreTableList
@@ -199,6 +204,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     
     // MARK: - レストラン一覧画面遷移
     func listScreenTransition(){
+        // 戻るボタンのタイトルを"完了"に変更します。
+        let backButton = UIBarButtonItem()
+        backButton.title = "戻る"
+        navigationItem.backBarButtonItem = backButton
+        
         let restaurantListViewController = self.storyboard?.instantiateViewController(withIdentifier: "RestaurantListViewController") as! RestaurantListViewController
         // 検索結果情報を遷移画面へ渡す
         restaurantListViewController.resutaurantList = self.resutaurantList

@@ -104,6 +104,11 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
     
     // レストラン選択後詳細画面遷移
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // 戻るボタンのタイトルを"完了"に変更します。
+        let backButton = UIBarButtonItem()
+        backButton.title = "一覧に戻る"
+        navigationItem.backBarButtonItem = backButton
+        
         let detailRestaurantViewController = self.storyboard?.instantiateViewController(withIdentifier: "DetailRestaurantViewController") as! DetailRestaurantViewController
         detailRestaurantViewController.resutaurantList = resutaurantList[indexPath.row]
         self.navigationController?.pushViewController(detailRestaurantViewController, animated: true)
