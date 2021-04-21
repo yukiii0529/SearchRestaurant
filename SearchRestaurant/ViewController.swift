@@ -25,25 +25,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     ]
     
     // ジャンル指定用配列
-    let genre = [
-        "居酒屋": "G001",
-        "ダイニングバー・バル": "G002",
-        "創作料理": "G003",
-        "和食": "G004",
-        "洋食": "G005",
-        "イタリアン・フレンチ": "G006",
-        "中華": "G007",
-        "焼肉・ホルモン": "G008",
-        "韓国料理": "G017",
-        "アジア・エスニック料理": "G009",
-        "各国料理": "G010",
-        "カラオケ・パーティ": "G011",
-        "バー・カクテル": "G012",
-        "ラーメン": "G013",
-        "お好み焼き・もんじゃ": "G016",
-        "カフェ・スイーツ": "G014",
-        "その他グルメ": "G015"
-    ]
+    var genre: [String: String] = [:] //  ジャンルリスト
+    var genreTableList: Array<String> =  [] // ジャンル選択画面に渡すジャンル名を入れた配列
     var selectGenre: Array<String> = [] // 選択したジャンルを格納する配列
     @IBOutlet weak var displayGenre: UILabel! // ジャンル表示
     var genreList = "" // ジャンルに関するクエリ作成用変数
@@ -59,6 +42,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        // ジャンル情報取得
+        getGenreContents()
         
         // 初めに検索ボタンを押せなくする
         searchButton.isEnabled = false
@@ -92,6 +78,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     // MARK: - ジャンル関連（選択したジャンルを画面に表示）
     // 選択したジャンルを画面に表示、クエリ作成変数に格納
     override func viewDidAppear(_ animated: Bool) {
+        displayGenre.text = "指定なし"
         // ジャンル関連
         if selectGenre.count != 0 {
             if selectGenre.count == 1 { // ジャンル選択が１つだけ
@@ -161,13 +148,56 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
     
     // MARK: - ジャンル選択
+    // ジャンル情報取得
+    func getGenreContents() {
+        // Keys.plistより個別api情報取得
+        let filePath = Bundle.main.path(forResource: "Keys", ofType:"plist" )
+        let plist = NSDictionary(contentsOfFile: filePath!)
+        let api = plist!["api"]!
+        
+        let url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/genre/v1/?key=\(api)&format=json")
+        
+        let urlRequest = URLRequest(url: url! as URL)
+        // JSONを取得
+        let configuration = URLSessionConfiguration.default
+        let session = URLSession(configuration: configuration,delegate: nil, delegateQueue: OperationQueue.main)
+        let task = session.dataTask(with: urlRequest,
+        completionHandler: {
+            (data, response, error) -> Void in //dataにJSONが入る
+            //JSON解析の処理
+            // 解析し配列に格納
+            do{
+                let json:Dictionary = try JSONSerialization.jsonObject(with: data!) as! [String:Any]
+                // results情報取得
+                if let items:Dictionary = json["results"] as? [String:Any] {
+                    // ジャンル情報取得
+                    if let item = items["genre"] as? [[String:Any]]{
+                        for genre in item {
+                            guard let name = genre["name"] as? String else{ // ジャンル名
+                                    continue
+                            }
+                            guard let code = genre["code"] as? String else{ // ジャンルコード
+                                    continue
+                            }
+                            self.genre.updateValue(code, forKey: name)
+                            self.genreTableList.append(name)
+                        }
+                    }
+                }
+            } catch {
+                print("エラーが発生しました")
+            }
+        })
+        task.resume() //実行
+    }
+
     // 選択画面に遷移
     @IBAction func chooseGenreButtonTapped(_ sender: Any) {
         let chooseGenreViewController = self.storyboard?.instantiateViewController(withIdentifier: "ChooseGenreViewController") as! ChooseGenreViewController
         chooseGenreViewController.selectGenre = self.selectGenre // ジャンル情報を遷移画面へ渡す
+        chooseGenreViewController.genre = self.genreTableList
         self.navigationController?.pushViewController(chooseGenreViewController, animated: true)
     }
-    
     // MARK: - レストラン検索
     // 検索ボタンがタップされた時
     @IBAction func searchRestaurantButtonTapped(_ sender: Any) {
@@ -187,7 +217,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         close:String , // 定休日
         catchs:String , // お店キャッチ
         budget:[String: String] , // 平均予算
-        capacity:Int // 総席数
+        capacity:Int , // 総席数
+        lat:Double , // 緯度
+        lng:Double // 経度
     )] = []
     // 検索した情報を格納する配列
     var searchList = [
@@ -216,7 +248,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
             var components = URLComponents(url: url! as URL, resolvingAgainstBaseURL: true)
             components?.queryItems! += [URLQueryItem(name: "genre", value: genreList)]
             url = components?.url as NSURL?
-            searchList["genre"] = genreList
+            searchList["genre"] = displayGenre.text
         }
         
         // レストラン名関連
@@ -281,8 +313,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                             guard let capacity = shop["capacity"] as? Int else{ // 総席数
                                     continue
                             }
-                            print(capacity)
-                            let resutaurant = (id,name,address,access,genre,middle_area,self.photo,open,close,catchs,budget,capacity) // 店舗情報まとめる
+                            guard let lat = shop["lat"] as? Double else{ // 緯度
+                                    continue
+                            }
+                            guard let lng = shop["lng"] as? Double else{ // 経度
+                                    continue
+                            }
+                            let resutaurant = (id,name,address,access,genre,middle_area,self.photo,open,close,catchs,budget,capacity,lat,lng) // 店舗情報まとめる
                             self.resutaurantList.append(resutaurant) // 店舗情報を配列に入れる
                         }
                     }

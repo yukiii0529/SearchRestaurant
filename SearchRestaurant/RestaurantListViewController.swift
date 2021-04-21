@@ -35,7 +35,9 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
         close:String , // 定休日
         catchs:String , // お店キャッチ
         budget:[String: String] , // 平均予算
-        capacity:Int // 総席数
+        capacity:Int , // 総席数
+        lat:Double , // 緯度
+        lng:Double // 経度
     )] = [] // レストラン全体情報を入れる配列
     
     override func viewDidLoad() {
@@ -86,6 +88,11 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
         cell.openField?.text = resutaurantList[indexPath.row].open
         cell.AccessField?.text = resutaurantList[indexPath.row].access
         cell.AccessField?.adjustsFontSizeToFitWidth = true
+        
+        // 選択された背景色を白に設定
+        let cellSelectedBgView = UIView()
+        cellSelectedBgView.backgroundColor = UIColor(red: 242/255, green: 242/255, blue: 242/255, alpha: 1)
+        cell.selectedBackgroundView = cellSelectedBgView
         
         return cell
     }

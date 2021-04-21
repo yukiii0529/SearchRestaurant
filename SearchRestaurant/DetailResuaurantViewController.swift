@@ -25,7 +25,9 @@ class DetailRestaurantViewController: UIViewController {
         close:String , // 定休日
         catchs:String , // お店キャッチ
         budget:[String: String] , // 平均予算
-        capacity:Int // 総席数
+        capacity:Int , // 総席数
+        lat:Double , // 緯度
+        lng:Double // 経度
     )! // レストラン情報が入った配列
     
     @IBOutlet weak var genreField: UILabel! // ジャンル＋中エリアコード
@@ -44,6 +46,7 @@ class DetailRestaurantViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        // MARK: - レストラン詳細項目表示
         /**
          詳細画面に値を入れる
          */
@@ -65,5 +68,15 @@ class DetailRestaurantViewController: UIViewController {
         bottomBorder1.frame = CGRect(x: 0, y: titleView.frame.height, width: titleView.frame.width - 40, height:1.0)
         bottomBorder1.backgroundColor = UIColor(red: 255/255, green: 190/255, blue: 61/255, alpha: 0.66).cgColor
         titleView.layer.addSublayer(bottomBorder1)
+    }
+    
+    // MARK: - Appleのマップを開く
+    // マップで開くボタンをタップした時
+    @IBAction func openMapButtonTapped(_ sender: Any) {
+        let daddr = NSString(format: "%f,%f", resutaurantList.lat, resutaurantList.lng)
+        let urlString = "http://maps.apple.com/?daddr=\(daddr)&dirflg=w"
+        if let url = URL(string: urlString) {
+            UIApplication.shared.open(url)
+        }
     }
 }
