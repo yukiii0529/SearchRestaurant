@@ -10,8 +10,10 @@
 	<string>アプリは常に位置情報を取得します</string>
 	<key>Privacy – When In Use Usage Description</key>
 	<array/>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>アプリは位置情報を取得してもよろしいですか？</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>アプリは位置情報を取得してもよろしいですか？</string>
 	<key>LSApplicationCategoryType</key>
 	<string></string>
 	<key>CFBundleExecutable</key>

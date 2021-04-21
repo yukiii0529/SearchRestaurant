@@ -29,7 +29,6 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
         for d in 0..<self.genre.count {
             for didGenre in self.selectGenre {
                 if didGenre == genre[d] {
-                    print("aaa")
                     self.tableView.selectRow(at: IndexPath(row: d, section: 0), animated: false, scrollPosition: .none)
                     let cell = tableView.cellForRow(at: IndexPath(row: d, section: 0))
                     cell?.accessoryType = .checkmark // チェックマークを入れる
@@ -66,6 +65,7 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
     // ジャンルを一覧表示する
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell")
+        // テーブルに値を入れる
         cell?.textLabel?.text = genre[indexPath.row]
         cell?.selectionStyle = .none
         return cell!

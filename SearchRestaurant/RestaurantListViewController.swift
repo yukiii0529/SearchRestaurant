@@ -8,6 +8,9 @@
 import UIKit
 
 class RestaurantListViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    @IBOutlet weak var titleView: UIView!
+    
     /**
      検索項目表示関連
      */
@@ -67,6 +70,12 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
         if resutaurantList.count == 0 {
             tableView.isHidden = true // テーブルを見えなくする
         }
+        
+        // デザイン
+        let bottomBorder1 = CALayer()
+        bottomBorder1.frame = CGRect(x: 0, y: titleView.frame.height, width: titleView.frame.width - 40, height:1.0)
+        bottomBorder1.backgroundColor = UIColor(red: 255/255, green: 190/255, blue: 61/255, alpha: 0.66).cgColor
+        titleView.layer.addSublayer(bottomBorder1)
     }
     
     // MARK: - レストラン一覧を作成するテーブル関連
@@ -78,18 +87,18 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
     // セル作成
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell : RestaurantListTableViewCell = tableView.dequeueReusableCell(withIdentifier: "restaurantCell", for: indexPath) as! RestaurantListTableViewCell
-        cell.GenreField?.text = resutaurantList[indexPath.row].genre["name"]!
-        let url = URL(string: resutaurantList[indexPath.row].photo["m"]!)
+        cell.GenreField?.text = resutaurantList[indexPath.row].genre["name"]! // ジャンル名
+        let url = URL(string: resutaurantList[indexPath.row].photo["m"]!) // レストラン画像
         if let image_data = try? Data(contentsOf: url!){
             cell.ImageView?.image = UIImage(data: image_data)
         }
-        cell.RestaurantNameField?.text = resutaurantList[indexPath.row].name
-        cell.AddressField?.text = resutaurantList[indexPath.row].address
-        cell.openField?.text = resutaurantList[indexPath.row].open
-        cell.AccessField?.text = resutaurantList[indexPath.row].access
-        cell.AccessField?.adjustsFontSizeToFitWidth = true
+        cell.RestaurantNameField?.text = resutaurantList[indexPath.row].name // レストラン名
+        cell.AddressField?.text = resutaurantList[indexPath.row].address // 住所
+        cell.openField?.text = resutaurantList[indexPath.row].open // 営業日
+        cell.AccessField?.text = resutaurantList[indexPath.row].access // 交通アクセス
+        cell.AccessField?.adjustsFontSizeToFitWidth = true // 枠内に文字を収める
         
-        // 選択された背景色を白に設定
+        // 選択された背景色を薄いグレーに設定
         let cellSelectedBgView = UIView()
         cellSelectedBgView.backgroundColor = UIColor(red: 242/255, green: 242/255, blue: 242/255, alpha: 1)
         cell.selectedBackgroundView = cellSelectedBgView

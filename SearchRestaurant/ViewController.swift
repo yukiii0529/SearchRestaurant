@@ -41,10 +41,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
      */
     @IBOutlet weak var searchButton: UIButton!
     
-    
-    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.requestAlwaysAuthorization()
         
         // ジャンル情報取得
         getGenreContents()
@@ -102,19 +103,19 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     }
 
     // MARK: - 現在位置取得
-    var count = 0 // 一度だけ取得するためのカウント変数
+    var count = 0 // 一度だけ取得するためのカウント変数(0:初めに取得,2:再取得)
     var latitude: Double = 0.0 // 緯度
     var longitude: Double = 0.0 // 経度
     // 位置取得ボタンがタップされた時
     @IBAction func getNowLocationButtonTapped(_ sender: Any) {
-        count = 0
+        count = 2 //
         locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
         locationManager.startUpdatingLocation()
     }
     // 位置取得
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         if let location = locations.first {
-            if count == 0 {
+            if count == 0 || count == 2{
                 locationManager.stopUpdatingLocation()
                 // 緯度と経度取得
                 locationManager.requestAlwaysAuthorization()
@@ -122,6 +123,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                 latitude = location.coordinate.latitude
                 longitude = location.coordinate.longitude
                 print("Location:\(location.coordinate.latitude), \(location.coordinate.longitude)")
+                
+                if count == 2 {
+                    let alert: UIAlertController = UIAlertController(title: "現在地取得完了", message: "現在地の取得が完了しました。", preferredStyle:  UIAlertController.Style.alert)
+
+                    let defaultAction: UIAlertAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:{
+                        (action: UIAlertAction!) -> Void in
+                        print("OK")
+                    })
+                    alert.addAction(defaultAction)
+                    // ④ Alertを表示
+                    present(alert, animated: true, completion: nil)
+                }
                 count += 1 // カウント＋１して次に取得しないようにする
             }
         }
@@ -238,6 +251,19 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
             let radius = distance[selectDistance.text!] // 半径距離
             searchList["distance"] = selectDistance.text!
             
+            // 緯度と経度が取得できていない場合、検索できない旨を伝えて設定から変更してもらえるようにする
+            if latitude == 0.0 || longitude == 0.0 {
+                let alert: UIAlertController = UIAlertController(title: "現在地取得失敗", message: "現在地の取得ができない為検索できません。設定→プライバシーをご確認ください。", preferredStyle:  UIAlertController.Style.alert)
+
+                let defaultAction: UIAlertAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:{
+                    (action: UIAlertAction!) -> Void in
+                    print("OK")
+                })
+                alert.addAction(defaultAction)
+                // ④ Alertを表示
+                present(alert, animated: true, completion: nil)
+                
+            }
             url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=\(api)&lat=\(latitude)&lng=\(longitude)&range=\(radius ?? "5")&format=json")
             
             // ジャンル関連
