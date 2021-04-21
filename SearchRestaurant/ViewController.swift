@@ -12,6 +12,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     
     var locationManager =  CLLocationManager()
     
+    // 検索するのがレストランかジャンルか把握するための変数(0:ジャンル検索、1:レストラン検索)
+     var searchDetailFlg = 0
+    
     @IBOutlet weak var selectDistance: UITextField!
     // 半径距離指定用配列
     var pickerView: UIPickerView = UIPickerView()
@@ -150,45 +153,9 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     // MARK: - ジャンル選択
     // ジャンル情報取得
     func getGenreContents() {
-        // Keys.plistより個別api情報取得
-        let filePath = Bundle.main.path(forResource: "Keys", ofType:"plist" )
-        let plist = NSDictionary(contentsOfFile: filePath!)
-        let api = plist!["api"]!
-        
-        let url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/genre/v1/?key=\(api)&format=json")
-        
-        let urlRequest = URLRequest(url: url! as URL)
-        // JSONを取得
-        let configuration = URLSessionConfiguration.default
-        let session = URLSession(configuration: configuration,delegate: nil, delegateQueue: OperationQueue.main)
-        let task = session.dataTask(with: urlRequest,
-        completionHandler: {
-            (data, response, error) -> Void in //dataにJSONが入る
-            //JSON解析の処理
-            // 解析し配列に格納
-            do{
-                let json:Dictionary = try JSONSerialization.jsonObject(with: data!) as! [String:Any]
-                // results情報取得
-                if let items:Dictionary = json["results"] as? [String:Any] {
-                    // ジャンル情報取得
-                    if let item = items["genre"] as? [[String:Any]]{
-                        for genre in item {
-                            guard let name = genre["name"] as? String else{ // ジャンル名
-                                    continue
-                            }
-                            guard let code = genre["code"] as? String else{ // ジャンルコード
-                                    continue
-                            }
-                            self.genre.updateValue(code, forKey: name)
-                            self.genreTableList.append(name)
-                        }
-                    }
-                }
-            } catch {
-                print("エラーが発生しました")
-            }
-        })
-        task.resume() //実行
+        searchDetailFlg = 0
+        // ジャンル取得
+        getRApi()
     }
 
     // 選択画面に遷移
@@ -199,11 +166,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         self.navigationController?.pushViewController(chooseGenreViewController, animated: true)
     }
     // MARK: - レストラン検索
-    // 検索ボタンがタップされた時
-    @IBAction func searchRestaurantButtonTapped(_ sender: Any) {
-        // JSON取得
-        getRApi()
-    }
     // レストラン全体情報を入れる配列
     var resutaurantList :[(
         id:String , // レストランID
@@ -228,40 +190,69 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         "keyword": ""
     ]
     var photo: [String: String] = [:] // レストランの写真を入れる配列
-    private func getRApi(){
-        // 再度検索した時の対処として検索結果を入れる配列を空にする
-        resutaurantList = []
+    // 検索ボタンがタップされた時
+    @IBAction func searchRestaurantButtonTapped(_ sender: Any) {
+        searchDetailFlg = 1
+        // JSON取得
+        getRApi()
+    }
+    
+    // MARK: - レストラン一覧画面遷移
+    func listScreenTransition(){
+        let restaurantListViewController = self.storyboard?.instantiateViewController(withIdentifier: "RestaurantListViewController") as! RestaurantListViewController
+        // 検索結果情報を遷移画面へ渡す
+        restaurantListViewController.resutaurantList = self.resutaurantList
+        // 検索した事柄を遷移画面へ渡す
+        restaurantListViewController.searchList = self.searchList
+        self.navigationController?.pushViewController(restaurantListViewController, animated: true)
+    }
+    
+    // MARK: - 検索機能（ジャンル・レストラン両方）
+    func getRApi() {
         // Keys.plistより個別api情報取得
         let filePath = Bundle.main.path(forResource: "Keys", ofType:"plist" )
         let plist = NSDictionary(contentsOfFile: filePath!)
         let api = plist!["api"]!
         
-        // JSON検索URL作成
-        let radius = distance[selectDistance.text!] // 半径距離
-        searchList["distance"] = selectDistance.text!
+        var url = NSURL(string: "")
         
-        var url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=\(api)&lat=\(latitude)&lng=\(longitude)&range=\(radius ?? "5")&format=json")
-        
-        // ジャンル関連
-        if selectGenre.count != 0 {
-            // URLにジャンルクエリ追加
-            var components = URLComponents(url: url! as URL, resolvingAgainstBaseURL: true)
-            components?.queryItems! += [URLQueryItem(name: "genre", value: genreList)]
-            url = components?.url as NSURL?
-            searchList["genre"] = displayGenre.text
+        /**
+         URL作成
+         */
+        if searchDetailFlg == 0 { // ジャンル検索の場合のURL
+            url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/genre/v1/?key=\(api)&format=json")
+        } else { // レストラン検索の場合のURL
+            // 再度検索した時の対処として検索結果を入れる配列を空にする
+            self.resutaurantList = []
+            // JSON検索URL作成
+            let radius = distance[selectDistance.text!] // 半径距離
+            searchList["distance"] = selectDistance.text!
+            
+            url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=\(api)&lat=\(latitude)&lng=\(longitude)&range=\(radius ?? "5")&format=json")
+            
+            // ジャンル関連
+            if selectGenre.count != 0 {
+                // URLにジャンルクエリ追加
+                var components = URLComponents(url: url! as URL, resolvingAgainstBaseURL: true)
+                components?.queryItems! += [URLQueryItem(name: "genre", value: genreList)]
+                url = components?.url as NSURL?
+                searchList["genre"] = displayGenre.text
+            }
+            
+            // レストラン名関連
+            if restaurantNameField.text != "" { // 検索キーワードが入力されている場合
+                // URLにジャンルクエリ追加
+                var components = URLComponents(url: url! as URL, resolvingAgainstBaseURL: true)
+                components?.queryItems! += [URLQueryItem(name: "keyword", value: restaurantNameField.text)]
+                url = components?.url as NSURL?
+                searchList["keyword"] = restaurantNameField.text
+            }
         }
-        
-        // レストラン名関連
-        if restaurantNameField.text != "" { // 検索キーワードが入力されている場合
-            // URLにジャンルクエリ追加
-            var components = URLComponents(url: url! as URL, resolvingAgainstBaseURL: true)
-            components?.queryItems! += [URLQueryItem(name: "keyword", value: restaurantNameField.text)]
-            url = components?.url as NSURL?
-            searchList["keyword"] = restaurantNameField.text
-        }
-
         let urlRequest = URLRequest(url: url! as URL)
-        // JSONを取得
+        
+        /**
+         JSON取得
+         */
         let configuration = URLSessionConfiguration.default
         let session = URLSession(configuration: configuration,delegate: nil, delegateQueue: OperationQueue.main)
         let task = session.dataTask(with: urlRequest,
@@ -273,74 +264,85 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                 let json:Dictionary = try JSONSerialization.jsonObject(with: data!) as! [String:Any]
                 // results情報取得
                 if let items:Dictionary = json["results"] as? [String:Any] {
-                    // レストラン情報取得
-                    if let item = items["shop"] as? [[String:Any]]{
-                        for shop in item {
-                            guard let id = shop["id"] as? String else{ // ID取得
-                                    continue
+                    /**
+                     ジャンル検索の場合
+                     */
+                    if self.searchDetailFlg == 0 {
+                        // ジャンル情報取得
+                        if let item = items["genre"] as? [[String:Any]]{
+                            for genre in item {
+                                guard let name = genre["name"] as? String else{ // ジャンル名
+                                        continue
+                                }
+                                guard let code = genre["code"] as? String else{ // ジャンルコード
+                                        continue
+                                }
+                                self.genre.updateValue(code, forKey: name)
+                                self.genreTableList.append(name)
                             }
-                            guard let name = shop["name"] as? String else{ // 店舗名取得
-                                    continue
-                            }
-                            guard let address = shop["address"] as? String else{ // 住所
-                                    continue
-                            }
-                            guard let access = shop["access"] as? String else{ // 交通アクセス取得
-                                    continue
-                            }
-                            guard let genre = shop["genre"] as? [String: String] else{ // ジャンル取得
-                                    continue
-                            }
-                            guard let middle_area = shop["middle_area"] as? [String: String] else{ // 中エリアコード
-                                    continue
-                            }
-                            guard let photos = shop["photo"] as? [String: Any] else{ // 店舗写真取得
-                                    continue
-                            }
-                            self.photo = photos["pc"] as! [String : String]
-                            guard let open = shop["open"] as? String else{ // 営業時間
-                                    continue
-                            }
-                            guard let close = shop["close"] as? String else{ // 定休日
-                                    continue
-                            }
-                            guard let catchs = shop["catch"] as? String else{ // お店キャッチ
-                                    continue
-                            }
-                            guard let budget = shop["budget"] as? [String: String] else{ // 平均予算
-                                    continue
-                            }
-                            guard let capacity = shop["capacity"] as? Int else{ // 総席数
-                                    continue
-                            }
-                            guard let lat = shop["lat"] as? Double else{ // 緯度
-                                    continue
-                            }
-                            guard let lng = shop["lng"] as? Double else{ // 経度
-                                    continue
-                            }
-                            let resutaurant = (id,name,address,access,genre,middle_area,self.photo,open,close,catchs,budget,capacity,lat,lng) // 店舗情報まとめる
-                            self.resutaurantList.append(resutaurant) // 店舗情報を配列に入れる
                         }
+                        /**
+                         レストラン検索の場合
+                         */
+                    } else {
+                        // レストラン情報取得
+                        if let item = items["shop"] as? [[String:Any]]{
+                            for shop in item {
+                                guard let id = shop["id"] as? String else{ // ID取得
+                                        continue
+                                }
+                                guard let name = shop["name"] as? String else{ // 店舗名取得
+                                        continue
+                                }
+                                guard let address = shop["address"] as? String else{ // 住所
+                                        continue
+                                }
+                                guard let access = shop["access"] as? String else{ // 交通アクセス取得
+                                        continue
+                                }
+                                guard let genre = shop["genre"] as? [String: String] else{ // ジャンル取得
+                                        continue
+                                }
+                                guard let middle_area = shop["middle_area"] as? [String: String] else{ // 中エリアコード
+                                        continue
+                                }
+                                guard let photos = shop["photo"] as? [String: Any] else{ // 店舗写真取得
+                                        continue
+                                }
+                                self.photo = photos["pc"] as! [String : String]
+                                guard let open = shop["open"] as? String else{ // 営業時間
+                                        continue
+                                }
+                                guard let close = shop["close"] as? String else{ // 定休日
+                                        continue
+                                }
+                                guard let catchs = shop["catch"] as? String else{ // お店キャッチ
+                                        continue
+                                }
+                                guard let budget = shop["budget"] as? [String: String] else{ // 平均予算
+                                        continue
+                                }
+                                guard let capacity = shop["capacity"] as? Int else{ // 総席数
+                                        continue
+                                }
+                                guard let lat = shop["lat"] as? Double else{ // 緯度
+                                        continue
+                                }
+                                guard let lng = shop["lng"] as? Double else{ // 経度
+                                        continue
+                                }
+                                let resutaurant = (id,name,address,access,genre,middle_area,self.photo,open,close,catchs,budget,capacity,lat,lng) // 店舗情報まとめる
+                                self.resutaurantList.append(resutaurant) // 店舗情報を配列に入れる
+                            }
+                        }
+                        self.listScreenTransition()
                     }
-                    
-                    self.listScreenTransition()
                 }
-            }catch{
+            } catch {
                 print("エラーが発生しました")
             }
         })
         task.resume() //実行
-   }
-    
-    // MARK: - レストラン一覧画面遷移
-    func listScreenTransition(){
-        let restaurantListViewController = self.storyboard?.instantiateViewController(withIdentifier: "RestaurantListViewController") as! RestaurantListViewController
-        // 検索結果情報を遷移画面へ渡す
-        restaurantListViewController.resutaurantList = self.resutaurantList
-        // 検索した事柄を遷移画面へ渡す
-        restaurantListViewController.searchList = self.searchList
-        self.navigationController?.pushViewController(restaurantListViewController, animated: true)
     }
 
 }
