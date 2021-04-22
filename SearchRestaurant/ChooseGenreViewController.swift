@@ -1,6 +1,7 @@
 //
 //  ChooseGenreViewController.swift
 //  SearchRestaurant
+//  ジャンル選択画面
 //
 //  Created by 田中勇輝 on 2021/04/17.
 //
@@ -19,8 +20,6 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        print(selectGenre)
-        
         tableView.delegate = self
         tableView.dataSource = self
         tableView.allowsMultipleSelection = true
@@ -28,7 +27,7 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
         // ２回目以降のジャンル再選択の際に既に選択済みのジャンルにチェックマークをつける
         for d in 0..<self.genre.count {
             for didGenre in self.selectGenre {
-                if didGenre == genre[d] {
+                if didGenre == genre[d] { // 選択しているジャンルがあれば
                     self.tableView.selectRow(at: IndexPath(row: d, section: 0), animated: false, scrollPosition: .none)
                     let cell = tableView.cellForRow(at: IndexPath(row: d, section: 0))
                     cell?.accessoryType = .checkmark // チェックマークを入れる
@@ -78,6 +77,7 @@ class ChooseGenreViewController: UIViewController , UITableViewDelegate, UITable
         let viewController = nav?.viewControllers[(nav?.viewControllers.count)!-2] as! ViewController
         // 一つ前の画面に選択したジャンル情報を渡す
         viewController.selectGenre = self.selectGenre
+        // 検索画面に遷移
         self.navigationController?.popViewController(animated: true)
     }
 }

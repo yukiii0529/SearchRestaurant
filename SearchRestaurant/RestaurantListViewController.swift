@@ -1,6 +1,7 @@
 //
 //  RestaurantListViewController.swift
 //  SearchRestaurant
+//  レストラン一覧画面
 //
 //  Created by 田中勇輝 on 2021/04/19.
 //
@@ -26,6 +27,7 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
     
     // MARK: - レストラン一覧表示関連
     @IBOutlet weak var tableView: UITableView! // レストラン一覧を表示するテーブル
+    // レストラン全体情報を入れる配列
     var resutaurantList :[(
         id:String , // レストランID
         name:String , // レストラン名
@@ -41,7 +43,7 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
         capacity:Int , // 総席数
         lat:Double , // 緯度
         lng:Double // 経度
-    )] = [] // レストラン全体情報を入れる配列
+    )] = []
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -87,6 +89,7 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
     // セル作成
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell : RestaurantListTableViewCell = tableView.dequeueReusableCell(withIdentifier: "restaurantCell", for: indexPath) as! RestaurantListTableViewCell
+        // 一覧に表示する項目
         cell.GenreField?.text = resutaurantList[indexPath.row].genre["name"]! // ジャンル名
         let url = URL(string: resutaurantList[indexPath.row].photo["m"]!) // レストラン画像
         if let image_data = try? Data(contentsOf: url!){
@@ -113,11 +116,12 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
     
     // レストラン選択後詳細画面遷移
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        // 戻るボタンのタイトルを"完了"に変更します。
+        // 戻るボタンのタイトルを"一覧に戻る"に変更します。
         let backButton = UIBarButtonItem()
         backButton.title = "一覧に戻る"
         navigationItem.backBarButtonItem = backButton
         
+        // 詳細画面に遷移
         let detailRestaurantViewController = self.storyboard?.instantiateViewController(withIdentifier: "DetailRestaurantViewController") as! DetailRestaurantViewController
         detailRestaurantViewController.resutaurantList = resutaurantList[indexPath.row]
         self.navigationController?.pushViewController(detailRestaurantViewController, animated: true)
@@ -125,6 +129,7 @@ class RestaurantListViewController: UIViewController, UITableViewDelegate, UITab
     
     // MARK: - 検索条件変更ボタンがタップされた時
     @IBAction func changeSearchContentButtonTapped(_ sender: Any) {
+        // 検索画面に遷移
         self.navigationController?.popViewController(animated: true)
     }
 }

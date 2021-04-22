@@ -1,6 +1,7 @@
 //
 //  DetailResuaurantViewController.swift
 //  SearchRestaurant
+//  レストラン詳細画面
 //
 //  Created by 田中勇輝 on 2021/04/19.
 //
@@ -51,7 +52,9 @@ class DetailRestaurantViewController: UIViewController {
          詳細画面に値を入れる
          */
         genreField.text = resutaurantList.genre["name"]! + " | " + resutaurantList.middle_area["name"]! // ジャンル・中エリアコード
+        genreField.adjustsFontSizeToFitWidth = true // 枠内に文字を収める
         restaurantNameField.text = resutaurantList.name // レストラン名
+        restaurantNameField.adjustsFontSizeToFitWidth = true // 枠内に文字を収める
         let url = URL(string: resutaurantList.photo["l"]!)
         if let image_data = try? Data(contentsOf: url!){
             imageView.image = UIImage(data: image_data) // レストラン画像

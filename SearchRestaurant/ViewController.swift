@@ -1,6 +1,7 @@
 //
 //  ViewController.swift
 //  SearchRestaurant
+//  レストラン検索画面
 //
 //  Created by 田中勇輝 on 2021/04/12.
 //
@@ -15,10 +16,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     // 検索するのがレストランかジャンルか把握するための変数(0:ジャンル検索、1:レストラン検索)
      var searchDetailFlg = 0
     
+    // 選択した距離を表示する変数
     @IBOutlet weak var selectDistance: UITextField!
-    // 半径距離指定用配列
+    
+    /**
+     半径指定
+     */
+    // ドロップダウンリスト作成
     var pickerView: UIPickerView = UIPickerView()
+    // ドロップダウンリストに表示する内容を格納した配列
     let chooseDistance = ["現在地より300m以内" , "現在地より500m以内" , "現在地より1km以内" , "現在地より2km以内" , "現在地より3km以内"]
+    // 指定した半径をURLに反映させるための情報を格納している配列（レストラン検索時に利用）
     let distance = [
         "現在地より300m以内": "1",
         "現在地より500m以内": "2",
@@ -27,13 +35,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         "現在地より3km以内": "5",
     ]
     
-    // ジャンル指定用配列
-    var genre: [String: String] = [:] //  ジャンルリスト
+    /**
+     ジャンル指定
+     */
+    var genre: [String: String] = [:] //  ジャンルリスト（レストラン検索時に利用）
     var genreTableList: Array<String> =  [] // ジャンル選択画面に渡すジャンル名を入れた配列
     var selectGenre: Array<String> = [] // 選択したジャンルを格納する配列
     @IBOutlet weak var displayGenre: UILabel! // ジャンル表示
     var genreList = "" // ジャンルに関するクエリ作成用変数
     
+    /**
+     レストラン検索（キーワード検索）
+     */
     @IBOutlet weak var restaurantNameField: UITextField! // レストラン名検索フィールド
     
     /**
@@ -56,13 +69,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         searchButton.setTitleColor(UIColor.white, for: .normal)
         searchButton.backgroundColor = UIColor(red: 216/255, green: 216/255, blue: 216/255, alpha: 1.0)
         
-        // 現在地を取得します
+        // 現在地を取得
        if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
             locationManager.startUpdatingLocation()
         }
         
+        /**
+         ドロップダウンリスト関連
+         */
         // ピッカー設定
         pickerView.delegate = self
         pickerView.dataSource = self
@@ -124,15 +140,17 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                 longitude = location.coordinate.longitude
                 print("Location:\(location.coordinate.latitude), \(location.coordinate.longitude)")
                 
+                // 取得完了ダイアログ表示
                 if count == 2 {
+                    // 内容作成
                     let alert: UIAlertController = UIAlertController(title: "現在地取得完了", message: "現在地の取得が完了しました。", preferredStyle:  UIAlertController.Style.alert)
-
+                    // OKボタン作成
                     let defaultAction: UIAlertAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:{
                         (action: UIAlertAction!) -> Void in
                         print("OK")
                     })
                     alert.addAction(defaultAction)
-                    // ④ Alertを表示
+                    // アラートを表示
                     present(alert, animated: true, completion: nil)
                 }
                 count += 1 // カウント＋１して次に取得しないようにする
@@ -173,7 +191,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
 
     // 選択画面に遷移
     @IBAction func chooseGenreButtonTapped(_ sender: Any) {
-        // 戻るボタンのタイトルを"完了"に変更します。
+        // 戻るボタンのタイトルを"戻る"に変更します。
         let backButton = UIBarButtonItem()
         backButton.title = "戻る"
         navigationItem.backBarButtonItem = backButton
@@ -181,6 +199,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         let chooseGenreViewController = self.storyboard?.instantiateViewController(withIdentifier: "ChooseGenreViewController") as! ChooseGenreViewController
         chooseGenreViewController.selectGenre = self.selectGenre // ジャンル情報を遷移画面へ渡す
         chooseGenreViewController.genre = self.genreTableList
+        // ジャンル選択画面に遷移
         self.navigationController?.pushViewController(chooseGenreViewController, animated: true)
     }
     // MARK: - レストラン検索
@@ -217,7 +236,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
     
     // MARK: - レストラン一覧画面遷移
     func listScreenTransition(){
-        // 戻るボタンのタイトルを"完了"に変更します。
+        // 戻るボタンのタイトルを"戻る"に変更します。
         let backButton = UIBarButtonItem()
         backButton.title = "戻る"
         navigationItem.backBarButtonItem = backButton
@@ -227,6 +246,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
         restaurantListViewController.resutaurantList = self.resutaurantList
         // 検索した事柄を遷移画面へ渡す
         restaurantListViewController.searchList = self.searchList
+        // レストラン一覧画面へ遷移
         self.navigationController?.pushViewController(restaurantListViewController, animated: true)
     }
     
@@ -251,20 +271,22 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
             let radius = distance[selectDistance.text!] // 半径距離
             searchList["distance"] = selectDistance.text!
             
+            url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=\(api)&lat=\(latitude)&lng=\(longitude)&range=\(radius ?? "5")&format=json")
+            
             // 緯度と経度が取得できていない場合、検索できない旨を伝えて設定から変更してもらえるようにする
             if latitude == 0.0 || longitude == 0.0 {
+                // 内容作成
                 let alert: UIAlertController = UIAlertController(title: "現在地取得失敗", message: "現在地の取得ができない為検索できません。設定→プライバシーをご確認ください。", preferredStyle:  UIAlertController.Style.alert)
-
+                // OKボタン作成
                 let defaultAction: UIAlertAction = UIAlertAction(title: "OK", style: UIAlertAction.Style.default, handler:{
                     (action: UIAlertAction!) -> Void in
                     print("OK")
                 })
                 alert.addAction(defaultAction)
-                // ④ Alertを表示
+                // アラートを表示
                 present(alert, animated: true, completion: nil)
                 
             }
-            url = NSURL(string: "https://webservice.recruit.co.jp/hotpepper/gourmet/v1/?key=\(api)&lat=\(latitude)&lng=\(longitude)&range=\(radius ?? "5")&format=json")
             
             // ジャンル関連
             if selectGenre.count != 0 {
@@ -306,6 +328,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                     if self.searchDetailFlg == 0 {
                         // ジャンル情報取得
                         if let item = items["genre"] as? [[String:Any]]{
+                            // ジャンルの配列に格納
                             for genre in item {
                                 guard let name = genre["name"] as? String else{ // ジャンル名
                                         continue
@@ -313,8 +336,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                                 guard let code = genre["code"] as? String else{ // ジャンルコード
                                         continue
                                 }
-                                self.genre.updateValue(code, forKey: name)
-                                self.genreTableList.append(name)
+                                self.genre.updateValue(code, forKey: name) // レストラン検索時に利用する配列へ格納
+                                self.genreTableList.append(name) // ジャンル選択画面に持っていく用の配列に格納
                             }
                         }
                         /**
@@ -323,6 +346,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                     } else {
                         // レストラン情報取得
                         if let item = items["shop"] as? [[String:Any]]{
+                            // レストラン一覧配列に格納
                             for shop in item {
                                 guard let id = shop["id"] as? String else{ // ID取得
                                         continue
@@ -371,7 +395,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, UIPickerViewD
                                 self.resutaurantList.append(resutaurant) // 店舗情報を配列に入れる
                             }
                         }
-                        self.listScreenTransition()
+                        self.listScreenTransition() // レストラン一覧画面に遷移
                     }
                 }
             } catch {
